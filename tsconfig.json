@@ -1,14 +1,16 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "es2020",
     "module": "commonjs",
     "rootDir": "./src",
     "outDir": "./dist",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "resolveJsonModule": true
-  }
+    "lib": ["es2020", "dom"], // Tambahkan "dom" jika ada interaksi dengan DOM di frontend (tidak relevan untuk backend ini, tapi seringkali dibutuhkan)
+    "sourceMap": true // Untuk debugging
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
 }

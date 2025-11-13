@@ -1,0 +1,69 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql" // PASTIKAN INI ADALAH "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Model Airport dan Flight sama seperti sebelumnya, tidak ada perubahan
+model Airport {
+  id          String    @id @default(uuid()) @map("uuid") // Untuk MySQL, gunakan @map("uuid") jika Anda ingin tipe UUID
+  icao        String    @unique
+  iata        String?
+  name        String
+  city        String?
+  countryCode String?
+  latitude    Float?
+  longitude   Float?
+  elevation   Int?
+  timezone    String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  flightsOriginating Flight[] @relation("OriginAirport")
+  flightsDestinating Flight[] @relation("DestinationAirport")
+
+  @@map("airports") // Opsional: nama tabel di DB
+}
+
+model Flight {
+  id              String    @id @default(uuid()) @map("uuid") // Untuk MySQL, gunakan @map("uuid") jika Anda ingin tipe UUID
+  fr24Id          String    @unique @map("fr24_id")
+  flightNumber    String?   @map("flight_number")
+  callsign        String?
+  hex             String?   @map("aircraft_hex")
+  aircraftType    String?   @map("aircraft_type")
+  registration    String?
+  latitude        Float
+  longitude       Float
+  track           Int?
+  altitude        Int?
+  groundSpeed     Int?      @map("ground_speed")
+  verticalSpeed   Int?      @map("vertical_speed")
+  squawk          Int?
+  timestamp       DateTime  @map("last_updated_at") // Ubah nama kolom untuk menghindari konflik
+  source          String?
+
+  originIata      String?   @map("origin_iata")
+  originIcao      String?   @map("origin_icao")
+  originAirportId String?   @map("origin_airport_id")
+  originAirport   Airport?  @relation("OriginAirport", fields: [originAirportId], references: [id])
+
+  destinationIata String?   @map("destination_iata")
+  destinationIcao String?   @map("destination_icao")
+  destinationAirportId String? @map("destination_airport_id")
+  destinationAirport Airport? @relation("DestinationAirport", fields: [destinationAirportId], references: [id])
+
+  eta             DateTime? @map("eta")
+
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  @@index([originIcao])
+  @@index([destinationIcao])
+  @@map("flights") // Opsional: nama tabel di DB
+}

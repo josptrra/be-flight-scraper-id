@@ -1,20 +1,37 @@
+// src/app.ts
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
+import { config } from "./config"; // Pastikan config dimuat di awal
 import flightRoutes from "./routes/flightRoutes";
-import authRoutes from "./routes/authRoutes";
-
-dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
-app.use(cors());
-app.use(express.json());
+// Middleware
+app.use(express.json()); // Untuk parse JSON body
+app.use(cors()); // Untuk mengizinkan permintaan dari frontend Anda
 
-app.use("/api/flights", flightRoutes);
-app.use("/api/auth", authRoutes);
+// Routes
+app.use("/api", flightRoutes);
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+// Basic health check endpoint
+app.get("/", (req, res) => {
+  res.send("Flightradar24 Backend API is running!");
+});
+
+// Error handling middleware (opsional, untuk penanganan error global)
+app.use(
+  (
+    err: Error,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    console.error(err.stack);
+    res.status(500).send("Something broke!");
+  }
+);
+
+app.listen(config.port, () => {
+  console.log(`Server running on http://localhost:${config.port}`);
+  console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
 });
